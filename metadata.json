@@ -1,0 +1,8 @@
+
+{
+  "name": "CuraVesta - Der Schweizer Pflegekompass",
+  "description": "Eine umfassende Plattform für Familien in der Schweiz, um Pflegeheime, Spitex und betreutes Wohnen zu finden, zu vergleichen und anzufragen.",
+  "requestFramePermissions": [
+    "geolocation"
+  ]
+}
