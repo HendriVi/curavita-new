@@ -40,7 +40,7 @@ const Features = () => {
                 <div className="text-center mb-16">
                     <h2 className="text-3xl lg:text-4xl font-display font-bold text-navy mb-4">Warum Curavesta?</h2>
                     <p className="text-lg text-gray-500 max-w-2xl mx-auto">
-                        Wir machen die Suche nach dem passenden Pflegeplatz einfach, transparente und menschlich.
+                        Wir machen die Suche nach dem passenden Pflegeplatz einfach, transparent und menschlich.
                     </p>
                 </div>
 
