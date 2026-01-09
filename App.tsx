@@ -10,6 +10,8 @@ import { SearchPage } from './pages/SearchPage';
 import { ChecklistPage } from './pages/ChecklistPage';
 import { CostsPage } from './pages/CostsPage';
 import { ContactPage } from './pages/ContactPage';
+import { AboutPage } from './pages/AboutPage';
+import { LegalPage } from './pages/LegalPage';
 
 function App() {
   const [page, setPage] = useState("home");
@@ -46,7 +48,11 @@ function App() {
 
       {page === 'contact' && <ContactPage onNav={navigate} initialParams={navParams} />}
 
-      <Footer />
+      {page === 'about' && <AboutPage onNav={navigate} />}
+
+      {page === 'legal' && <LegalPage onNav={navigate} />}
+
+      <Footer onNav={navigate} />
     </div>
   );
 }
