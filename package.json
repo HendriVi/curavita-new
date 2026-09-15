@@ -4,9 +4,12 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite",
-    "build": "vite build",
-    "preview": "vite preview"
+    "dev": "node curavesta/scripts/serve.mjs",
+    "build": "node curavesta/scripts/pages-build.mjs",
+    "build:preview": "node curavesta/scripts/pages-build.mjs --preview",
+    "preview": "node curavesta/scripts/serve.mjs",
+    "test": "node --test curavesta/tests/*.test.mjs",
+    "check": "npm --prefix curavesta run check"
   },
   "dependencies": {
     "react-dom": "^18.3.1",
