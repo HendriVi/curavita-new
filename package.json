@@ -1,22 +1,14 @@
 {
-  "name": "curavesta---der-schweizer-pflegekompass",
+  "name": "betterhealth-website",
   "private": true,
-  "version": "0.0.0",
+  "version": "1.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite",
-    "build": "vite build",
+    "build": "node scripts/build-site.mjs",
+    "dev": "npm run build && vite preview --host 0.0.0.0",
     "preview": "vite preview"
   },
-  "dependencies": {
-    "react-dom": "^18.3.1",
-    "react": "^18.3.1",
-    "lucide-react": "^0.344.0"
-  },
   "devDependencies": {
-    "@types/node": "^22.14.0",
-    "@vitejs/plugin-react": "^5.0.0",
-    "typescript": "~5.8.2",
     "vite": "^6.2.0"
   }
 }
