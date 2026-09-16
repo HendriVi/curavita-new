@@ -1,19 +1,16 @@
 import { siteConfig } from './site-config.js';
-import { careLabels, timingLabels, validateRegion, buildSummary, buildMailto, getLaunchIssues } from './enquiry.js';
+import { careLabels, timingLabels, validateRegion, validateContact, buildSummary, buildMailto, getLaunchIssues } from './enquiry.js';
 
 document.documentElement.classList.remove('no-js');
 
 const form = document.querySelector('#enquiry-form');
-const fieldsets = [...form.querySelectorAll('[data-step]')];
 const next = document.querySelector('#form-next');
-const back = document.querySelector('#form-back');
 const error = document.querySelector('#form-error');
 const region = document.querySelector('#region');
 const menu = document.querySelector('#hauptnavigation');
 const menuToggle = document.querySelector('.menu-toggle');
 const dialogs = [...document.querySelectorAll('dialog')];
 const canContact = getLaunchIssues(siteConfig).length === 0;
-let step = 0;
 let summary = '';
 let returnHash = '#start';
 let activeDialog = null;
@@ -42,19 +39,12 @@ function clearError() {
   error.textContent = '';
   region.removeAttribute('aria-invalid');
 }
-function showStep(index, focus = true) {
-  step = index;
-  clearError();
-  fieldsets.forEach((fieldset, i) => { fieldset.hidden = i !== step; });
-  document.querySelector('#step-label').textContent = 'Schritt ' + (step + 1) + ' von 3';
-  document.querySelectorAll('.form-progress span').forEach((bar, i) => bar.classList.toggle('is-active', i <= step));
-  next.hidden = step === 2;
-  back.hidden = step === 0;
-  if (focus) fieldsets[step].querySelector('legend').focus({ preventScroll: true });
-}
 function renderSummary() {
-  const answers = { care: selected('care'), region: region.value.trim(), timing: selected('timing') };
+  const answers = readAnswers();
   summary = buildSummary(answers);
+  document.querySelector('#summary-contact').textContent = answers.name + '\n' + answers.email + (answers.phone ? '\n' + answers.phone : '');
+  document.querySelector('#summary-message').textContent = answers.message;
+  form.querySelector('[data-step="2"]').hidden = false;
   document.querySelector('#summary-care').textContent = careLabels[answers.care];
   document.querySelector('#summary-region').textContent = answers.region;
   document.querySelector('#summary-timing').textContent = timingLabels[answers.timing];
@@ -65,43 +55,53 @@ function renderSummary() {
   if (canContact) document.querySelector('#email-enquiry').href = buildMailto(siteConfig.email, summary);
 }
 
+function readAnswers() {
+  return {
+    care: selected('care'), region: region.value.trim(), timing: selected('timing'),
+    name: document.querySelector('#contact-name').value.trim(),
+    email: document.querySelector('#contact-email').value.trim(),
+    phone: document.querySelector('#contact-phone').value.trim(),
+    message: document.querySelector('#contact-message').value.trim(),
+  };
+}
 form.addEventListener('submit', event => {
   event.preventDefault();
   clearError();
-  if (step === 0) {
-    if (!selected('care')) {
-      error.textContent = 'Bitte wählen Sie ein Anliegen. Sie können sich auch zuerst orientieren.';
-      form.querySelector('input[name="care"]').focus({ preventScroll: true });
-      return;
-    }
-    showStep(1);
-  } else if (step === 1) {
-    if (!validateRegion(region.value)) {
-      error.textContent = 'Bitte geben Sie einen Ort oder eine vierstellige Schweizer Postleitzahl ein.';
-      region.setAttribute('aria-invalid', 'true');
-      region.focus({ preventScroll: true });
-      return;
-    }
-    if (!selected('timing')) {
-      error.textContent = 'Bitte wählen Sie einen Zeitraum.';
-      form.querySelector('input[name="timing"]').focus({ preventScroll: true });
-      return;
-    }
-    renderSummary();
-    showStep(2);
+  if (!form.reportValidity()) return;
+  if (!validateRegion(region.value)) {
+    error.textContent = 'Bitte geben Sie einen Ort oder eine vierstellige Schweizer Postleitzahl ein.';
+    region.setAttribute('aria-invalid', 'true');
+    region.focus();
+    return;
   }
+  const contactError = validateContact(readAnswers());
+  if (contactError) { error.textContent = contactError; return; }
+  renderSummary();
+  const heading = form.querySelector('[data-step="2"] legend');
+  heading.focus({ preventScroll: true });
+  heading.scrollIntoView({ block: 'center', behavior: 'auto' });
 });
-back.addEventListener('click', () => showStep(Math.max(0, step - 1)));
-form.addEventListener('input', clearError);
-form.addEventListener('change', () => {
+// Enable submission only after its preventDefault handler exists. Without JS,
+// method="dialog" and a disabled button prevent leaking form data into a URL.
+next.type = 'submit';
+next.disabled = false;
+document.querySelector('#form-unavailable').hidden = true;
+function invalidateSummary() {
   clearError();
+  summary = '';
+  form.querySelector('[data-step="2"]').hidden = true;
+  document.querySelector('#email-enquiry').removeAttribute('href');
+}
+form.addEventListener('input', invalidateSummary);
+form.addEventListener('change', () => {
+  invalidateSummary();
   document.querySelector('#urgency-note').hidden = selected('timing') !== 'soon';
 });
 document.querySelectorAll('[data-care]').forEach(link => {
   link.addEventListener('click', () => {
     const input = form.querySelector('input[name="care"][value="' + link.dataset.care + '"]');
     if (input) input.checked = true;
-    showStep(0, false);
+    invalidateSummary();
   });
 });
 document.querySelector('#copy-summary').addEventListener('click', async () => {

@@ -22,9 +22,21 @@ export function isContactEmail(value) {
   return typeof value === 'string' && /^[^\s@<>?&#%]+@[^\s@<>?&#%]+\.[^\s@<>?&#%]+$/.test(value);
 }
 
-export function buildSummary({ care, region, timing }) {
+export function validateContact({ name = '', email = '', phone = '', message = '' }) {
+  if (name.trim().length < 2 || name.length > 100 || /[\r\n]/.test(name)) return 'Bitte geben Sie Ihren Namen ein.';
+  if (!isContactEmail(email) || email.length > 160) return 'Bitte geben Sie eine gültige E-Mail-Adresse ein.';
+  if (phone && (!/^[+\d ()/.-]{6,40}$/.test(phone) || phone.replace(/\D/g, '').length < 6)) return 'Bitte prüfen Sie Ihre Telefonnummer.';
+  if (message.length > 1500) return 'Bitte beschränken Sie Ihre Nachricht auf 1500 Zeichen.';
+  return '';
+}
+
+export function buildSummary({ care, region, timing, name, email, phone = '', message = '' }) {
   if (!Object.hasOwn(careLabels, care) || !Object.hasOwn(timingLabels, timing) || !validateRegion(region)) {
     throw new Error('Bitte Anliegen, Region und Zeitraum vervollständigen.');
+  }
+  if (name !== undefined || email !== undefined) {
+    const error = validateContact({ name, email, phone, message });
+    if (error) throw new Error(error);
   }
   return [
     'Meine Pflegesuche – Curavesta',
@@ -35,7 +47,11 @@ export function buildSummary({ care, region, timing }) {
     '',
     'Gerne möchte ich in einem Erstgespräch die nächsten Schritte klären.',
     '',
-    'Meine Kontaktdaten ergänze ich bei der Kontaktaufnahme.',
+    ...(name !== undefined ? [
+      'Name: ' + name.trim(), 'E-Mail: ' + email.trim(),
+      ...(phone ? ['Telefon: ' + phone.trim()] : []),
+      ...(message ? ['', 'Mein Anliegen:', message.trim()] : []),
+    ] : ['Meine Kontaktdaten ergänze ich bei der Kontaktaufnahme.']),
     'Bitte keine Diagnosen oder medizinischen Unterlagen per unverschlüsselter E-Mail senden.',
   ].join('\n');
 }

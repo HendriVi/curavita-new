@@ -177,6 +177,12 @@ nav > a:not(.button):hover { color: var(--accent); }
 #direct-contact > p { margin-bottom: 4px; font-size: 13px; }
 .contact-direct { display: block; font-size: 15px; }
 .enquiry-card { background: var(--white); border-radius: 9px; padding: 32px; color: var(--ink); box-shadow: 0 12px 36px #15281918; }
+.enquiry-card fieldset + fieldset { margin-top: 30px; }
+.enquiry-card [data-step="2"] { margin-top: 30px; padding-top: 25px; border-top: 1px solid var(--line); }
+.enquiry-card textarea { resize: vertical; min-height: 120px; }
+.optional { font-weight: 400; color: var(--muted); }
+.summary-text { white-space: pre-wrap; overflow-wrap: anywhere; font-size: 14px; }
+.button:disabled { cursor: not-allowed; opacity: .65; transform: none; }
 .form-topline { display: flex; justify-content: space-between; gap: 15px; font-size: 10px; color: #6c715f; }
 #step-label { color: var(--accent); font-weight: 600; }
 .form-progress { display: grid; grid-template-columns: repeat(3, 1fr); gap: 5px; margin: 12px 0 30px; }

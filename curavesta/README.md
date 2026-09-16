@@ -45,10 +45,10 @@ The claim of a free first conversation is carried over in narrower form from the
 
 ## Enquiry behaviour
 
-The three-step assistant asks only for a broad care category, desired region and time horizon. It prepares a summary; it does not make clinical recommendations or claim availability.
+The visible enquiry form asks for care category, region, timing, name and email, with optional phone and message. It prepares a summary; it does not make clinical recommendations or claim availability. All input fields remain visible without JavaScript. Preparing the summary requires JavaScript; if scripts are blocked, a visible hint explains how to open the preview in a browser.
 
 - No backend, API key, analytics, cookies or persistent browser storage.
-- No names, emails, diagnoses or health documents are collected by the form.
+- Contact details remain in browser memory until the visitor chooses to copy, download or email their summary. No uploads are offered, and the form asks visitors not to include diagnoses.
 - With verified configuration, the last step opens an encoded `mailto:` draft. The visitor must send it from their own email program.
 - Without launch-ready configuration, the last step explicitly says it is a preview and no enquiry was sent.
 - Copy and text-download actions work without a contact destination. Clipboard denial has a manual-copy fallback.
@@ -62,7 +62,7 @@ The site retains the repository's existing illustration and Curavesta name. It r
 
 Terracotta, warm paper and sage retain the approachable character, while large serif headings, restrained components and a simpler page hierarchy improve readability. The copy uses Swiss German spelling and respects the older person's wishes and autonomy.
 
-The main page covers the offer, process, company approach, guides, FAQ and enquiry. Guides and legal information are accessible in native dialogs; without JavaScript they remain reachable as linked sections. The assistant and menu use labelled controls and visible keyboard focus, and reduced motion is respected.
+The main page covers the offer, process, company approach, guides, FAQ and enquiry. Guides and legal information are accessible in native dialogs; without JavaScript they remain reachable as linked sections. The form and menu use labelled controls and visible keyboard focus, and reduced motion is respected.
 
 ## Research basis
 

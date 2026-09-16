@@ -1,9 +1,10 @@
 import test from 'node:test';
+import { Script } from 'node:vm';
 import assert from 'node:assert/strict';
 import { readFile, access } from 'node:fs/promises';
 import { execFileSync, spawnSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
-import { careLabels, timingLabels, validateRegion, buildSummary, buildMailto, isContactEmail, getLaunchIssues } from '../enquiry.js';
+import { careLabels, timingLabels, validateRegion, validateContact, buildSummary, buildMailto, isContactEmail, getLaunchIssues } from '../enquiry.js';
 import { siteConfig } from '../site-config.js';
 
 const root = new URL('../', import.meta.url);
@@ -103,7 +104,7 @@ test('Guides and legal dialogs are named, closeable and have a no-JS fallback', 
   assert.match(css, /prefers-reduced-motion/);
   assert.match(css, /@media print/);
 });
-test('Wizard options and configured labels stay aligned', () => {
+test('Form options and configured labels stay aligned', () => {
   for (const care of Object.keys(careLabels)) assert.ok(html.includes('name="care" value="' + care + '"'));
   for (const timing of Object.keys(timingLabels)) assert.ok(html.includes('name="timing" value="' + timing + '"'));
   assert.equal((html.match(/data-step="/g) || []).length, 3);
@@ -133,10 +134,38 @@ test('Standalone preview embeds every asset and has no unresolved module imports
   execFileSync(process.execPath, ['scripts/preview.mjs'], { cwd: fileURLToPath(root), stdio: 'pipe' });
   const output = await readFile(new URL('dist/curavesta-preview.html', root), 'utf8');
   assert.match(output, /src="data:image\/png;base64,/);
-  assert.match(output, /<script type="module">/);
+  const inline = output.match(/<script>([\s\S]*?)<\/script>/);
+  assert.ok(inline);
+  assert.doesNotThrow(() => new Script(inline[1]));
+  assert.ok(output.indexOf('<script>') > output.indexOf('</form>'));
   assert.equal(output.includes('src="./app.js"'), false);
   assert.equal(output.includes('href="./styles.css"'), false);
   assert.equal(/^import .+;/m.test(output), false);
   assert.equal(/^export /m.test(output), false);
   assert.match(output, /noindex, nofollow/);
+});
+
+
+test('Input form is visible without scripts and cannot submit contact data through GET', () => {
+  const form = html.match(/<form id="enquiry-form"[\s\S]*?<\/form>/)[0];
+  assert.match(form, /method="dialog"/);
+  assert.equal(form.includes('js-only'), false);
+  const inputs = form.split('<fieldset data-step="2"')[0];
+  assert.equal(/<fieldset[^>]*hidden/.test(inputs), false);
+  for (const id of ['region', 'contact-name', 'contact-email', 'contact-phone', 'contact-message']) {
+    assert.ok(inputs.includes('id="' + id + '"'));
+    assert.ok(inputs.includes('for="' + id + '"'));
+  }
+  assert.match(form, /<button[^>]*type="button"[^>]*id="form-next"[^>]*disabled/);
+});
+test('Contact details are validated and included in the prepared enquiry', () => {
+  const contact = { name: 'Anna Beispiel', email: 'anna@example.org', phone: '+41 79 123 45 67', message: 'Wir suchen Unterstützung & Orientierung.' };
+  assert.equal(validateContact(contact), '');
+  for (const invalid of [{ name: '' }, { email: 'invalid' }, { phone: 'abc' }, { message: 'a'.repeat(1501) }]) {
+    assert.notEqual(validateContact({ ...contact, ...invalid }), '');
+  }
+  const summary = buildSummary({ ...example, ...contact });
+  for (const value of Object.values(contact)) assert.ok(summary.includes(value));
+  const draft = new URL(buildMailto('office@example.org', summary));
+  assert.equal(draft.searchParams.get('body'), summary);
 });

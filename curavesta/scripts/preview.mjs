@@ -10,7 +10,9 @@ const script = (config + '\n' + enquiry + '\n' + app).replace(/<\/script/gi, '<\
 const image = (await readFile(new URL('assets/hero-illustration.png', root))).toString('base64');
 const favicon = (await readFile(new URL('assets/favicon.svg', root))).toString('base64');
 html = html.replace('<link rel="stylesheet" href="./styles.css">', () => '<style>\n' + css + '\n</style>');
-html = html.replace('<script type="module" src="./app.js"></script>', () => '<script type="module">\n' + script + '\n</script>');
+html = html.replace('<script type="module" src="./app.js"></script>', '');
+// A classic inline script works from local files too; run after the form exists.
+html = html.replace('</body>', () => '<script>\n(function () {\n' + script + '\n})();\n</script>\n</body>');
 html = html.replace('src="./assets/hero-illustration.png"', 'src="data:image/png;base64,' + image + '"');
 html = html.replace('href="./assets/favicon.svg"', 'href="data:image/svg+xml;base64,' + favicon + '"');
 await mkdir(new URL('dist/', root), { recursive: true });
