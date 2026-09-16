@@ -55,6 +55,9 @@ svg.icon { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-w
 .swiss-label { display: flex; gap: 8px; align-items: center; }
 .swiss-cross { background: var(--accent); color: white; display: inline-flex; align-items: center; justify-content: center; width: 14px; height: 14px; font: bold 16px/1 Arial, sans-serif; border-radius: 1px; }
 .site-header { position: sticky; top: 0; z-index: 20; background: var(--paper); border-bottom: 1px solid var(--line); }
+/* Expanded fallback navigation must scroll away, including in file previews. */
+.no-js .site-header { position: static; }
+html.no-js { scroll-padding-top: 24px; }
 .nav-inner { min-height: var(--header-height); display: flex; align-items: center; justify-content: space-between; gap: 30px; }
 .brand { display: inline-flex; align-items: center; font: 36px/1 var(--serif); letter-spacing: -1.8px; text-decoration: none; white-space: nowrap; }
 .brand-mark { display: inline-flex; margin-right: 11px; color: var(--accent); align-items: center; }
@@ -301,6 +304,8 @@ tbody th { width: 26%; }
 }
 @media (max-width: 959px) {
   :root { --header-height: 74px; }
+  html { scroll-padding-top: 24px; }
+  .site-header { position: static; }
   .container { width: calc(100% - 48px); }
   .menu-toggle { display: flex; }
   .nav-inner { flex-wrap: wrap; gap: 0; padding-block: 14px; }
