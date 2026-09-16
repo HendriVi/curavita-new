@@ -1,0 +1,14 @@
+{
+  "name": "curavesta-company-website",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "node scripts/serve.mjs",
+    "build": "node scripts/build.mjs",
+    "build:production": "node scripts/build.mjs --production",
+    "preview:file": "node scripts/preview.mjs",
+    "test": "node --test tests/*.test.mjs",
+    "check": "node --check app.js && node --check enquiry.js && node --check site-config.js && npm test && npm run build"
+  }
+}
